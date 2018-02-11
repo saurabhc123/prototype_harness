@@ -31,4 +31,4 @@ hidden2_neurons = 50
 
 sentence = tf.placeholder(tf.float32, shape=[None, word_vec_dim])
 class_labels = tf.placeholder(tf.float32, shape=[None, n_classes])
-class_centroids = tf.placeholder(tf.float32, shape=[n_classes,word_vec_dim])
+class_centroids = tf.placeholder(tf.float32, shape=[n_classes,hidden2_neurons])
