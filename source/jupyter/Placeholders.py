@@ -25,7 +25,7 @@ y_ = tf.placeholder(tf.int32, shape=[None, n_classes])
 
 n_neurons = 300
 learning_rate = 0.01
-<<<<<<< HEAD
+
 
 n_classes = 2
 word_vec_dim = 300
@@ -35,5 +35,4 @@ hidden2_neurons = 50
 sentence = tf.placeholder(tf.float32, shape=[None, word_vec_dim])
 class_labels = tf.placeholder(tf.float32, shape=[None, n_classes])
 class_centroids = tf.placeholder(tf.float32, shape=[n_classes,hidden2_neurons])
-=======
->>>>>>> parent of 1df2407... Basic Neural Network structure working.
+
