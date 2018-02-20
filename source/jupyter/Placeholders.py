@@ -29,8 +29,9 @@ learning_rate = 0.01
 
 n_classes = 2
 word_vec_dim = 300
-hidden1_neurons = 16
-hidden2_neurons = 8
+hidden1_neurons = 150
+hidden2_neurons = 75
+dropout = 0.25
 
 sentence = tf.placeholder(tf.float32, shape=[None, word_vec_dim])
 class_labels = tf.placeholder(tf.float32, shape=[None, n_classes])

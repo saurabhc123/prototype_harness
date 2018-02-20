@@ -10,6 +10,8 @@ import random as random
 x = Placeholders.sentence
 y_ = Placeholders.class_labels
 c = Placeholders.class_centroids
+keep_prob = Placeholders.keep_prob
+is_training = True
 
 
 def get_cluster_based_labels1(fc_layer_representation):
@@ -80,15 +82,16 @@ def get_random_examples(data,labels,number_of_examples,label=0):
     labels = requested_labels[random_index:random_index+number_of_examples,:]
     return result, labels
 
-def get_centroid(support_examples,hidden2,sess):
-    hidden_vectors = sess.run(hidden2, feed_dict={x: support_examples})
+def get_centroid(support_examples,hidden2,sess, keep_prob1):
+    hidden_vectors = sess.run(hidden2, feed_dict={x: support_examples, keep_prob : keep_prob1})
     centroid = np.mean(hidden_vectors,axis = 0)
     return centroid
 
 def train(sess):
     he_init = slim.variance_scaling_initializer()
     hidden1 =tf.layers.dense(Placeholders.sentence, Placeholders.hidden1_neurons,activation=tf.nn.relu,kernel_initializer=he_init)
-    hidden2 =tf.layers.dense(Placeholders.sentence, Placeholders.hidden2_neurons,activation=tf.nn.relu,kernel_initializer=he_init)
+    hidden1_dropout = tf.nn.dropout(hidden1, keep_prob = Placeholders.keep_prob)
+    hidden2 =tf.layers.dense(hidden1_dropout, Placeholders.hidden2_neurons,activation=tf.nn.relu,kernel_initializer=he_init)
     ##Basic Neural Network
     #cluster_based_labels = hidden2
     #Cluster based objective
@@ -163,20 +166,20 @@ def train(sess):
         random_X = np.vstack((query_positive_examples,query_negative_examples))
         random_Y = np.vstack((query_positive_labels,query_negative_labels))
 
-        c_zero = get_centroid(support_positive_examples,hidden2,sess)
-        c_one = get_centroid(support_negative_examples,hidden2,sess)
+        c_zero = get_centroid(support_positive_examples,hidden2,sess, 0.75)
+        c_one = get_centroid(support_negative_examples,hidden2,sess, 0.75)
         C = np.vstack((c_zero,c_one))
 
-        sess.run(train_step, feed_dict={x: random_X, y_: random_Y, c:C})
+        sess.run(train_step, feed_dict={x: random_X, y_: random_Y, c:C, keep_prob : 0.75})
 
         if(i%10000 == 0):
             #logits_ = np.array(sess.run(cluster_based_labels, feed_dict={x: X_validation, y_: Y_validation, c:C}))
             #print(logits_[:5,:])
-            training_accuracy = sess.run(accuracy, feed_dict={x: random_X, y_: random_Y, c:C})*100
-            training_loss = sess.run(loss, feed_dict={x: random_X, y_: random_Y, c:C})
+            training_accuracy = sess.run(accuracy, feed_dict={x: random_X, y_: random_Y, c:C, keep_prob : 1.0})*100
+            training_loss = sess.run(loss, feed_dict={x: random_X, y_: random_Y, c:C, keep_prob : 1.0})
             #print("Training Accuracy: {0:.2f}".format(training_accuracy), " Training Loss: {0:.2f}".format(training_loss))
-            validation_accuracy = sess.run(accuracy, feed_dict={x: X_validation, y_: Y_validation, c:C})*100
-            test_accuracy = sess.run(accuracy, feed_dict={x: X_test, y_: Y_test, c:C})*100
+            validation_accuracy = sess.run(accuracy, feed_dict={x: X_validation, y_: Y_validation, c:C,keep_prob : 1.0})*100
+            test_accuracy = sess.run(accuracy, feed_dict={x: X_test, y_: Y_test, c:C, keep_prob : 1.0})*100
             print(" Training Loss: {0:.2f}".format(training_loss), "Training Accuracy: {0:.2f}".format(training_accuracy),"Validation Accuracy: {0:.2f}".format(validation_accuracy), " Test Accuracy: {0:.2f}".format(test_accuracy))
 
 
